@@ -28,7 +28,7 @@ float xWindowFilterRecv(WindowFilter_t filter);
 // Ò»½×¿¨¶ûÂüÂË²¨Æ÷Àà
 typedef void* KalmanFilter_t;
 KalmanFilter_t xKalmanFilterCreate(float Q,float R,float initEstimate);
-int xWindowFilterSend(KalmanFilter_t filter,float dataToFilter);
-float xWindowFilterRecv(KalmanFilter_t filter);
+int xKalmanFilterSend(KalmanFilter_t filter, float measuredValue) ;
+float xKalmanFilterRecv(KalmanFilter_t filter) ;
 
 

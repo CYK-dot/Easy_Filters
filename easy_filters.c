@@ -24,7 +24,7 @@ LowpassFilter_t xLowpassFilterCreate(float alpha)
         return NULL;
     }
 
-    LowpassHandle_t *handle = FILTER_PORT_MALLOC(sizeof(LowpassHandle_t));
+    LowpassHandle_t *handle = (LowpassHandle_t *)FILTER_PORT_MALLOC(sizeof(LowpassHandle_t));
     if (handle == NULL) 
         return NULL;
 
@@ -93,10 +93,13 @@ typedef struct
  */
 WindowFilter_t xWindowFilterCreate(uint16_t windowSize)
 {
-    WindowFilterHandle_t *handle = FILTER_PORT_MALLOC(sizeof(WindowFilterHandle_t));
+    WindowFilterHandle_t *handle = (WindowFilterHandle_t *)FILTER_PORT_MALLOC(sizeof(WindowFilterHandle_t));
     if (!handle) 
         return NULL;
-    handle->buffer = FILTER_PORT_MALLOC(windowSize * sizeof(float));
+    if (windowSize == 0) 
+        return NULL;
+
+    handle->buffer = (float *)FILTER_PORT_MALLOC(windowSize * sizeof(float));
     if (!handle->buffer) {
         FILTER_PORT_FREE(handle);
         return NULL;
@@ -179,6 +182,8 @@ KalmanFilter_t xKalmanFilterCreate(float Q, float R, float initialEstimate)
     KalmanFilterHandle_t* handle = (KalmanFilterHandle_t*)FILTER_PORT_MALLOC(sizeof(KalmanFilterHandle_t));
     if (!handle) 
         return NULL;
+    if (Q < 0.0f || R < 0.0f)
+        return NULL;
 
     handle->estimate = initialEstimate;
     handle->P = 1.0f;
@@ -198,6 +203,8 @@ KalmanFilter_t xKalmanFilterCreate(float Q, float R, float initialEstimate)
 int xKalmanFilterSend(KalmanFilter_t filter, float measuredValue) 
 {
     if (!filter) 
+        return FILTER_ERR_INVALID_PARAM;
+    if (isnan(measuredValue))
         return FILTER_ERR_INVALID_PARAM;
     KalmanFilterHandle_t* handle = (KalmanFilterHandle_t*)filter;
 
